@@ -1,0 +1,715 @@
+{% assign defaultlang = settings['LanguageLocale/Code'] | default: 'en-us' %}
+{% assign homeurl = website.adx_partialurl %}
+ 
+<style>
+/* Hide original navbar styles */
+.navbar, .navbar-expand-xl {
+  display: none !important;
+}
+ 
+/* Ensure body doesn't have extra padding/margins */
+body {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+ 
+/* ===== Left Sidebar Navigation Styling ===== */
+.sidebar-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 280px;
+  background: linear-gradient(180deg, #323130, #484644);
+  box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  z-index: 1050;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+ 
+.sidebar-nav.collapsed {
+  transform: translateX(-280px);
+}
+ 
+/* Sidebar Collapse/Expand Arrow Button - FIXED VERSION */
+.sidebar-collapse-btn {
+  position: fixed !important;
+  top: 50% !important;
+  left: 280px !important;
+  transform: translateY(-50%) !important;
+  background: #323130 !important;
+  border: none !important;
+  color: #fff !important;
+  width: 40px !important;
+  height: 80px !important;
+  border-radius: 0 12px 12px 0 !important;
+  cursor: pointer !important;
+  z-index: 1060 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 4px 0 12px rgba(0,0,0,0.3) !important;
+  transition: all 0.3s ease !important;
+  font-size: 16px !important;
+}
+ 
+.sidebar-collapse-btn:hover {
+  background: #484644 !important;
+  transform: translateY(-50%) translateX(8px) !important;
+  box-shadow: 6px 0 16px rgba(0,0,0,0.4) !important;
+}
+ 
+.sidebar-collapse-btn i {
+  transition: transform 0.3s ease !important;
+  font-size: 16px !important;
+  color: #fff !important;
+}
+ 
+/* When sidebar is collapsed, move button to left edge */
+.sidebar-nav.collapsed + .sidebar-collapse-btn {
+  left: 0 !important;
+  border-radius: 0 12px 12px 0 !important;
+}
+ 
+.sidebar-nav.collapsed + .sidebar-collapse-btn i {
+  transform: rotate(180deg) !important;
+}
+ 
+/* Brand/Header Section */
+.sidebar-header {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.2);
+}
+ 
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff !important;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+ 
+.sidebar-brand:hover {
+  color: #f1f1f1 !important;
+  text-decoration: none;
+}
+ 
+/* Skip to content link styling */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 1100;
+  border-radius: 4px;
+  transition: top 0.3s;
+}
+ 
+.skip-to-content a {
+  color: #fff !important;
+  text-decoration: none;
+}
+ 
+.skip-to-content:focus-within {
+  top: 6px;
+}
+ 
+/* Navigation Menu */
+.sidebar-menu {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+ 
+.sidebar-menu-item {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+ 
+.sidebar-menu-link {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1.5rem;
+  color: #f8f8f8 !important;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+ 
+.sidebar-menu-link:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff !important;
+  text-decoration: none;
+  padding-left: 1.75rem;
+}
+ 
+.sidebar-menu-link.active {
+  background: #005a9e;
+  color: #fff !important;
+  border-right: 3px solid #00bcf2;
+}
+ 
+.sidebar-menu-link i, .sidebar-menu-link .glyphicon {
+  width: 20px;
+  margin-right: 12px;
+  text-align: center;
+}
+ 
+/* Submenu/Dropdown */
+.sidebar-submenu {
+  background: rgba(0,0,0,0.2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: none;
+}
+ 
+.sidebar-submenu.show {
+  display: block;
+}
+ 
+.sidebar-submenu-item {
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+ 
+.sidebar-submenu-link {
+  display: block;
+  padding: 0.75rem 1.5rem 0.75rem 3.5rem;
+  color: #d1d1d1 !important;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+ 
+.sidebar-submenu-link:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff !important;
+  text-decoration: none;
+  padding-left: 3.75rem;
+}
+ 
+/* Dropdown Toggle */
+.dropdown-toggle-sidebar::after {
+  content: '\f054';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  border: none;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+ 
+.dropdown-toggle-sidebar.expanded::after {
+  transform: rotate(90deg);
+}
+ 
+/* Search Section */
+.sidebar-search {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+ 
+.sidebar-search .search-container {
+  position: relative;
+}
+ 
+.sidebar-search .dropdown-search {
+  position: static;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  padding: 8px 12px;
+  width: 100%;
+  display: block;
+  box-shadow: none;
+}
+ 
+/* User Profile Section */
+.sidebar-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.3);
+}
+ 
+.user-profile {
+  padding: 1rem 1.5rem;
+  color: #f8f8f8;
+}
+ 
+.user-profile .dropdown-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 10px;
+  right: 10px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.2);
+  border: none;
+  margin-bottom: 5px;
+}
+ 
+/* Mobile Toggle Button */
+.sidebar-toggle {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1060;
+  background: #323130;
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: none;
+}
+ 
+/* Main Content Adjustment */
+.main-content {
+  margin-left: 280px;
+  transition: margin-left 0.3s ease;
+  min-height: 100vh;
+  padding: 2rem;
+}
+ 
+.main-content.expanded {
+  margin-left: 0;
+}
+ 
+/* Override any content container margins that might conflict */
+.content-container,
+.page-content,
+.main-container {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+ 
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .sidebar-nav {
+    transform: translateX(-280px);
+  }
+ 
+  .sidebar-nav.show {
+    transform: translateX(0);
+  }
+ 
+  .sidebar-toggle {
+    display: block;
+  }
+ 
+  .sidebar-collapse-btn {
+    display: none !important;
+  }
+ 
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+ 
+/* Additional override to ensure no conflicts with Power Pages default styles */
+.container-fluid,
+.container {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+</style>
+ 
+<!-- Skip to content accessibility link -->
+<div class="skip-to-content">
+  <a href="#mainContent">{{ resx.Skip_To_Content | default: "Skip to main content" }}</a>
+</div>
+ 
+<!-- Mobile Toggle Button -->
+<button class="sidebar-toggle" onclick="toggleSidebar()">
+  <span class="fa-solid fa-bars"></span>
+</button>
+ 
+<!-- Left Sidebar Navigation -->
+<nav class="sidebar-nav" id="sidebarNav" role="banner">
+  <!-- Header/Brand Section -->
+  <div class="sidebar-header">
+    <a href="/" class="sidebar-brand">
+      {% editable snippets 'Mobile Header' type: 'html' %}
+    </a>
+  </div>
+ 
+  <!-- Main Navigation Menu -->
+  {% assign primary_nav = weblinks["Default"] %}
+  {% if primary_nav %}
+  <ul class="sidebar-menu" role="menubar">
+    {% for link in primary_nav.weblinks %}
+      {% if link.display_page_child_links %}
+        {% if link.url != null %}
+          {% assign sublinks = sitemap[link.url].children %}
+        {% endif %}
+      {% else %}
+        {% assign sublinks = link.weblinks %}
+      {% endif %}
+     
+      <li class="sidebar-menu-item" role="none">
+        {% if sublinks.size > 0 %}
+          <a class="sidebar-menu-link dropdown-toggle-sidebar"
+             href="#"
+             role="menuitem"
+             onclick="toggleSubmenu(event, 'submenu-{{ forloop.index }}')"
+             aria-label="{{ link.name | escape }}"
+             title="{{ link.tooltip | escape }}">
+            {% if link.image %}
+              {% if link.image.url %}
+                {% if link.image.url.first == '.' %}
+                  <span class="{{ link.image.url | split:'.' | join }}" aria-hidden="true"></span>
+                {% else %}
+                  <img src="{{ link.image.url | escape }}" alt="{{ link.image.alternate_text | default:link.tooltip | escape }}" width="20" height="20" />
+                {% endif %}
+              {% endif %}
+            {% else %}
+              <i class="fa-solid fa-folder"></i>
+            {% endif %}
+            {% unless link.display_image_only %}
+              {{ link.name | escape }}
+            {% endunless %}
+          </a>
+          <ul class="sidebar-submenu" id="submenu-{{ forloop.index }}" role="menu">
+            {% if link.name and link.url %}
+              <li class="sidebar-submenu-item">
+                <a class="sidebar-submenu-link"
+                   href="{{ link.url }}"
+                   role="menuitem"
+                   aria-label="{{ link.name | escape }}"
+                   {% if link.Open_In_New_Window %} target="_blank" {% endif %}
+                   {% if link.nofollow %} rel="nofollow" {% endif %}
+                   title="{{ link.tooltip | escape }}">
+                  {{ link.name | escape }}
+                </a>
+              </li>
+              <li><hr style="border-color: rgba(255,255,255,0.1); margin: 0.5rem 1rem;"></li>
+            {% endif %}
+            {% for sublink in sublinks %}
+              <li class="sidebar-submenu-item">
+                <a class="sidebar-submenu-link"
+                   href="{{ sublink.url }}"
+                   role="menuitem"
+                   aria-label="{{ sublink.name | default:sublink.title | escape }}"
+                   {% if sublink.Open_In_New_Window %} target="_blank" {% endif %}
+                   {% if sublink.nofollow %} rel="nofollow" {% endif %}
+                   title="{{ sublink.tooltip | escape }}">
+                  {{ sublink.name | default:sublink.title | escape }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <a class="sidebar-menu-link"
+             href="{{ link.url | escape }}"
+             role="menuitem"
+             aria-label="{{ link.name | escape }}"
+             {% if link.Open_In_New_Window %} target="_blank" {% endif %}
+             {% if link.nofollow %} rel="nofollow" {% endif %}
+             title="{{ link.tooltip | escape }}">
+            {% if link.image %}
+              {% if link.image.url %}
+                {% if link.image.url.first == '.' %}
+                  <span class="{{ link.image.url | split:'.' | join }}" aria-hidden="true"></span>
+                {% else %}
+                  <img src="{{ link.image.url | escape }}" alt="{{ link.image.alternate_text | default:link.tooltip | escape }}" width="20" height="20" />
+                {% endif %}
+              {% endif %}
+            {% else %}
+              <i class="fa-solid fa-link"></i>
+            {% endif %}
+            {% unless link.display_image_only %}
+              {{ link.name | escape }}
+            {% endunless %}
+          </a>
+        {% endif %}
+      </li>
+    {% endfor %}
+ 
+    <!-- Search Section -->
+    {% assign search_enabled = settings['Search/Enabled'] | boolean | default:true %}
+    {% if search_enabled %}
+    <li class="sidebar-menu-item">
+      <a class="sidebar-menu-link dropdown-toggle-sidebar"
+         href="#"
+         role="menuitem"
+         onclick="toggleSubmenu(event, 'search-submenu')"
+         aria-label="{{ snippets['Header/Search/ToolTip'] | default:resx['Search_DefaultText'] | escape }}">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        Search
+      </a>
+      <div class="sidebar-submenu" id="search-submenu">
+        <div style="padding: 1rem;">
+          {% include 'Search', search_id:'sidebar-search' %}
+        </div>
+      </div>
+    </li>
+    {% endif %}
+ 
+    <!-- Language Selector -->
+    {% if website.languages.size > 1 %}
+    <li class="sidebar-menu-item">
+      <a class="sidebar-menu-link dropdown-toggle-sidebar"
+         href="#"
+         role="menuitem"
+         onclick="toggleSubmenu(event, 'language-submenu')"
+         aria-label="{{ website.selected_language.name | escape }}">
+        <i class="fa-solid fa-language"></i>
+        {{ website.selected_language.name | escape }}
+      </a>
+      <div class="sidebar-submenu" id="language-submenu">
+        <div style="padding: 1rem;">
+          {% include 'Languages Dropdown' %}
+        </div>
+      </div>
+    </li>
+    {% endif %}
+  </ul>
+  {% endif %}
+ 
+  <!-- User Profile Section -->
+  {% assign profile_enabled = settings['Profile/Enabled'] | boolean | default: true %}
+  {% if profile_enabled %}
+  <div class="sidebar-footer">
+    <div class="user-profile">
+      {% if user %}
+        <div class="dropdown dropup">
+          {% assign username = user.fullname | escape %}
+          <a href="#" class="sidebar-menu-link" data-bs-toggle="dropdown" aria-expanded="false" role="menuitem">
+            <i class="fa-solid fa-user"></i>
+            <span class="username">{{ username | default: resx['Default_Profile_name'] }}</span>
+          </a>
+          <ul class="dropdown-menu">
+            {% assign show_profile_nav = settings["Header/ShowAllProfileNavigationLinks"] | boolean | default: true %}
+            {% if show_profile_nav %}
+              {% assign profile_nav = weblinks["Profile Navigation"] %}
+              {% if profile_nav %}
+                {% for link in profile_nav.weblinks %}
+                <li><a class="dropdown-item" href="{{ link.url | escape }}" aria-label="{{ link.name | escape }}">{{ link.name | escape }}</a></li>
+                {% endfor %}
+              {% endif %}
+            {% else %}
+              <li><a class="dropdown-item" href="{{ sitemarkers['Profile'].url | escape }}" aria-label="{{ snippets['Profile Link Text'] | default:resx['Profile_Text'] | escape }}">{{ snippets["Profile Link Text"] | default: resx["Profile_Text"] | escape }}</a></li>
+            {% endif %}
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="{% if homeurl%}/{{ homeurl }}{% endif %}{{ website.sign_out_url_substitution }}" aria-label="{{ snippets['links/logout'] | default:resx['Sign_Out'] | escape }}">
+                {{ snippets["links/logout"] | default:resx["Sign_Out"] | escape }}
+              </a>
+            </li>
+          </ul>
+        </div>
+      {% else %}
+        <a class="sidebar-menu-link" href="{% if homeurl%}/{{ homeurl }}{% endif %}{{ website.sign_in_url_substitution }}" role="menuitem">
+          <i class="fa-solid fa-sign-in-alt"></i>
+          {{ snippets["links/login"] | default:resx["Sign_In"] | escape }}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</nav>
+ 
+<!-- Sidebar Collapse/Expand Arrow Button - ENHANCED VERSION -->
+<button class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleSidebarCollapse()" aria-label="Toggle sidebar" title="Collapse/Expand Sidebar">
+  <i class="fa-solid fa-chevron-left" id="collapseIcon"></i>
+</button>
+ 
+<!-- Original substitution section for search and forum pages -->
+{% substitution %}
+{% assign current_page = page.id %}
+{% assign sr_page = sitemarkers["Search"].id %}
+{% assign forum_page = sitemarkers["Forums"].id %}
+{% if current_page %}
+  {% if current_page == sr_page or current_page == forum_page %}
+    {% assign section_class = "section-landing-search" %}
+    {% if current_page == forum_page %}
+      {% assign section_class = "section-landing-forums" %}
+    {% endif %}
+<section class="page_section {{ section_class | h }} color-inverse">
+    <div class="row sectionBlockLayout sectionFixedStyle" style="display: flex; flex-wrap: wrap; text-align: center;">
+        <div class="container" style="display: flex; flex-wrap: wrap;">
+            <div class="col-lg-12 columnBlockLayout" style="display: flex; flex-direction: column; justify-content: center;">
+                {% if current_page == sr_page %}
+                <h1 id="mainContent">{% editable snippets 'Search/Title' default: resx["Discover_Contoso"] %}</h1>
+                {% include 'Search' search_id:'search_control' %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endif %}
+{% endsubstitution %}
+ 
+<script type="text/javascript">
+// Apply main content margin adjustment to body after DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Create main content wrapper if it doesn't exist
+  const body = document.body;
+  const sidebar = document.getElementById('sidebarNav');
+  const toggleBtn = document.querySelector('.sidebar-toggle');
+  const skipContent = document.querySelector('.skip-to-content');
+  const collapseBtn = document.getElementById('sidebarCollapseBtn');
+ 
+  let mainContentDiv = document.querySelector('.main-content');
+  if (!mainContentDiv) {
+    mainContentDiv = document.createElement('div');
+    mainContentDiv.className = 'main-content';
+    mainContentDiv.id = 'mainContent';
+   
+    // Move all body content except sidebar and buttons into main content
+    const children = Array.from(body.children);
+    children.forEach(child => {
+      if (child !== sidebar && child !== toggleBtn && child !== mainContentDiv && child !== skipContent && child !== collapseBtn) {
+        mainContentDiv.appendChild(child);
+      }
+    });
+   
+    body.appendChild(mainContentDiv);
+  }
+ 
+  // Force visibility of collapse button
+  if (collapseBtn) {
+    collapseBtn.style.display = 'flex';
+    collapseBtn.style.visibility = 'visible';
+    console.log('Collapse button initialized and made visible');
+  }
+ 
+  setActiveMenuItem();
+ 
+  // Handle IE compatibility
+  if (window.navigator.appName == "Microsoft Internet Explorer" || window.navigator.userAgent.indexOf("Trident") > 0) {
+    const searchElements = document.querySelectorAll("[href='#']");
+    searchElements.forEach(element => {
+      if (element.id === "search" || element.textContent.includes("Search")) {
+        element.setAttribute("href", "");
+      }
+    });
+  }
+ 
+  // Close sidebar when clicking outside on mobile
+  document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebarNav');
+    const toggle = document.querySelector('.sidebar-toggle');
+   
+    if (window.innerWidth <= 768 &&
+        !sidebar.contains(event.target) &&
+        !toggle.contains(event.target) &&
+        sidebar.classList.contains('show')) {
+      toggleSidebar();
+    }
+  });
+});
+ 
+// Toggle sidebar on mobile (hamburger menu)
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebarNav');
+  const mainContent = document.getElementById('mainContent') || document.querySelector('.main-content');
+ 
+  sidebar.classList.toggle('show');
+  if (mainContent) {
+    mainContent.classList.toggle('expanded');
+  }
+}
+ 
+// Toggle sidebar collapse/expand (desktop arrow button) - ENHANCED VERSION
+function toggleSidebarCollapse() {
+  const sidebar = document.getElementById('sidebarNav');
+  const mainContent = document.getElementById('mainContent') || document.querySelector('.main-content');
+  const collapseBtn = document.getElementById('sidebarCollapseBtn');
+  const icon = document.getElementById('collapseIcon');
+ 
+  console.log('Toggle function called'); // Debug log
+ 
+  sidebar.classList.toggle('collapsed');
+ 
+  if (mainContent) {
+    if (sidebar.classList.contains('collapsed')) {
+      mainContent.style.marginLeft = '0';
+      collapseBtn.style.left = '0px';
+      if (icon) icon.style.transform = 'rotate(180deg)';
+    } else {
+      mainContent.style.marginLeft = '280px';
+      collapseBtn.style.left = '280px';
+      if (icon) icon.style.transform = 'rotate(0deg)';
+    }
+  }
+}
+ 
+// Toggle submenu
+function toggleSubmenu(event, submenuId) {
+  event.preventDefault();
+  const submenu = document.getElementById(submenuId);
+  const toggle = event.target.closest('a');
+ 
+  submenu.classList.toggle('show');
+  toggle.classList.toggle('expanded');
+}
+ 
+// Set active menu item based on current URL
+function setActiveMenuItem() {
+  const currentUrl = window.location.pathname;
+  const menuLinks = document.querySelectorAll('.sidebar-menu-link, .sidebar-submenu-link');
+ 
+  menuLinks.forEach(link => {
+    if (link.getAttribute('href') === currentUrl) {
+      link.classList.add('active');
+     
+      // If it's a submenu item, expand the parent
+      const submenu = link.closest('.sidebar-submenu');
+      if (submenu) {
+        submenu.classList.add('show');
+        const parentToggle = submenu.previousElementSibling;
+        if (parentToggle && parentToggle.classList.contains('dropdown-toggle-sidebar')) {
+          parentToggle.classList.add('expanded');
+        }
+      }
+    }
+  });
+}
+ 
+// Handle window resize for responsive design
+function setHeight() {
+  const sidebar = document.getElementById('sidebarNav');
+  if (sidebar && window.innerWidth <= 768) {
+    const windowHeight = window.innerHeight;
+    sidebar.style.maxHeight = windowHeight + 'px';
+  }
+}
+ 
+window.addEventListener('resize', function(event) {
+  setHeight();
+ 
+  const sidebar = document.getElementById('sidebarNav');
+  const mainContent = document.getElementById('mainContent') || document.querySelector('.main-content');
+ 
+  if (window.innerWidth > 768) {
+    sidebar.classList.remove('show');
+    if (mainContent) {
+      mainContent.classList.remove('expanded');
+    }
+  }
+});
+ 
+// Initialize height on load
+window.onload = function() {
+  setHeight();
+ 
+  // Double-check collapse button visibility
+  const collapseBtn = document.getElementById('sidebarCollapseBtn');
+  if (collapseBtn) {
+    collapseBtn.style.display = 'flex';
+    console.log('Collapse button re-initialized on window load');
+  }
+};
+</script>
+ 

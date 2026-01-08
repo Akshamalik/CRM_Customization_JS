@@ -1,0 +1,43 @@
+*Function Purpose-
+The function prevents a Lead/Case from being assigned to the MVA01 Program if the attorney’s law firm either:
+1.Is not part of the MVA01 program, or
+2.Has exceeded their allowed exposure limit (Tier 1 or Tier 2 exposure cap)
+
+The function returns a flag (alreadyBlockedFlag) indicating whether the record should be blocked.
+*When The Function Runs-
+It runs when a user selects an existing attorney on the form.
+If the form is already Inactive or Canceled, it exits immediately (no validation required).
+*Step-by-Step Logic
+1.Get the selected Attorney
+2.Reads the lookup value drb_existingattorney → extracts the attorney Contact ID.
+3.Retrieve Program Type Configuration
+4.From usc_programtypes Gets three key max exposure limits:usc_partyexposuremax,usc_tier1max,usc_tier2max
+4.Retrieve Tier 1 and Tier 2 Law Firm lists
+5.Expands many-to-many relationships:usc_programtype_Tier1Account,usc_programtype_Tier2Account,
+6.Builds two arrays:
+tier1Accounts = [Account IDs]
+tier2Accounts = [Account IDs]
+7.Get the Attorney’s Law Firm
+8.Looks up the attorney’s parentcustomerid (the law firm Account ID).
+9.Determine Exposure Limit for That Law Firm
+10.If the firm appears in Tier 1 list → use tier1max
+or If the firm appears in Tier 2 list → use tier2max
+Otherwise → the law firm is not part of the MVA01 program
+11.Check Law Firm’s Current Exposure
+Retrieves the firm’s current MVA01 exposure: usc_mva01exposure
+If exposure exceeds the tier limit:
+Show alert
+Clear the selected Program Type field
+Mark record as blocked
+If Not Blocked Yet → Check Program Membership
+Runs a FetchXML query to verify if:
+The attorney belongs to a law firm
+That firm is listed under MVA01 program
+If no match found:
+Show "Law Firm Blocker" alert
+Clear program type
+Mark record as blocked
+Return Value
+return alreadyBlockedFlag;
+true → Program selection is blocked
+false → Program selection is allowed
